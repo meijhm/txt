@@ -3,83 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-    <title>m站</title>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <title>文本显示修改网</title>
+    <style>
+        .font1{
+            text-align: center;
+            font-family: "思源黑体 CN Regular";
+            tab-size: 1.3em;
+        }
+        input {
+            margin: 15px 0;
+        }
+        textarea {
+            width: 85%;
+            height: 300px;
+            resize: none;
+        }
+        #down{
+            display: none;
+        }
+    </style>
 </head>
-<body onload="nowTime()">
-    <div class="well col-sm-12">
-        <div class="well-sm col-sm-10 col-sm-offset-1 bg-info">
-            <h3 class="text-primary col-sm-8 col-sm-offset-1">m站</h3>
-            <h3 class="text-primary">当前时间：</br>
-                <small id="now_time" class="text-danger"></small>
-            </h3>
-        </div>
-        <div class="well-sm col-sm-10 col-sm-offset-1 bg-success"><h4 class="text-warning">下面是我学习后的作品:</h4></div>
-        <div class="well-sm col-sm-10 col-sm-offset-1 bg-info">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th class="text-center">站名</th>
-                    <th class="text-center">用途</th>
-                    <th class="text-center">点赞</th>
-                </tr>
-                </thead>
-                <tbody align="center">
-                <tr>
-                    <td><a href="http://www.welcom212.com/m/sg" target="_blank">书感</a></td>
-                    <td>发表自己对好书的感悟</td>
-                    <td><input type="button" class="btn btn-success" value="10" onclick="good(0)"></td>
-                </tr>
-                <tr>
-                    <td><a href="http://www.welcom212.com/m/vm" target="_blank">赏视</a></td>
-                    <td>学习iframe后的作品，全部开源，仅供学习</td>
-                    <td><input type="button" class="btn btn-success" value="20" onclick="good(1)"></td>
-                </tr>
-                <tr>
-                    <td><a href="http://www.welcom212.com/m/vita.html" target="_blank">个人简历</a></td>
-                    <td>个人简历</td>
-                    <td><input type="button" class="btn btn-success" value="50" onclick="good(2)"></td>
-                </tr>
-                <tr>
-                    <td><a href="http://www.welcom212.com/m/txt" target="_blank">文本显示修改网</a></td>
-                    <td>文本显示修改网</td>
-                    <td><input type="button" class="btn btn-success" value="60" onclick="good(3)"></td>
-                </tr>
-                <tr>
-                    <td>期待</td>
-                    <td>期待</td>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <td>期待</td>
-                    <td>期待</td>
-                    <td>0</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="well-sm col-sm-10 col-sm-offset-1 bg-success text-center">反馈请关注微信公众号<img width="129" height="129" src="images/qrcode.jpg"></div>
+<body>
+    <div align="center">
+        <div class="font1">在线显示与修改文本</div>
+        <input type="file" name="upload" id="upload" accept="text/plain"/><br>
+        <textarea name="content" id="content"></textarea>
+        <p id="fileInfo"></p>
+        <button type="button" id="down">修改后下载保存</button>
     </div>
 </body>
 </html>
 <script>
-    var arr = new Array(5);
-    arr[0] = document.getElementsByTagName("input")[0].value;
-    arr[1] = document.getElementsByTagName("input")[1].value;
-    arr[2] = document.getElementsByTagName("input")[2].value;
-    arr[3] = document.getElementsByTagName("input")[3].value;
-    index = 0;
-    storage = window.localStorage;
-    function nowTime(){
-        var data = new Date();
-        var ntime = document.getElementById("now_time");
-        ntime.innerText = data.toLocaleString()+'\t'+data.getMilliseconds();
-        ntime.style.fontFamily = "consolas"
-        setTimeout(function(){nowTime()},1);
+    window.onload = function() {
+        var
+                upload = document.getElementById('upload'),
+                content = document.getElementById('content'),
+                fileInfo = document.getElementById('fileInfo');
+
+        upload.onchange = function(){
+            // 获取File引用
+            var file = upload.files[0];
+            // 获取File信息
+            fileInfo.innerHTML = '文件名称: ' + file.name + '<br>' +
+                    '文件大小: ' + file.size+ '字节' + '<br>' +
+                    '修改时间: ' + file.lastModifiedDate;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                content.value = this.result;
+            };
+            reader.readAsText(file,'gbk');
+            document.getElementById('down').style.display = "block";
+        }
     }
-    function good(i){
-        alert("感谢你的点赞支持！");
-        arr[i]++;
-        document.getElementsByTagName("input")[i].value=arr[i];
+    function download(filename, content) {
+        var blob = new Blob([content], {type: 'text/plain'});
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+
+        a.style = "display: none";
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+
+        setTimeout(function () {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 5);
     }
+    document.getElementById('down').onclick = function () {
+        var fileName = document.getElementById('upload').files[0].name;
+        var fileContent = document.getElementById('content').value;
+        download(fileName, fileContent);
+    };
 </script>
